@@ -1,5 +1,7 @@
-// HexHW.cpp : Defines the entry point for the console application.
-//
+/* HexHW.cpp : This is a simulation of the game Hex. The program will create a 7x7 hex board (size set by hex_size) and players (R and B) can 
+   place their coin by entering the move (i,j). The logic to find winner hasn't been implemented yet (will be done in the future). The nodes are
+   currently represented by a vector of strings. The logic to update the display with the move, and reject invalid moves has been implemented.
+*/
 
 
 #include <iostream>
