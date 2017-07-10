@@ -20,62 +20,110 @@ const unsigned int hex_size = 7;
 class Hex {
 public:
 	Hex(unsigned int size) {
-
+		hex_size = size;
+		x_pos = 0; y_pos = 0;
+		my_turn = false;	//R plays first
+		board.resize(hex_size * hex_size);
+		for (int n = 0; n < board.size(); n++) {
+			board[n] = ".";
+		}
 	}
+
+	// updatePos(input)
+	// Return 0 if success, -1 if failure
+	int updatePos(string pos_input) {
+		if (pos_input.length() > 3) {
+			return -1;
+		}
+		stringstream pos(pos_input);
+		pos >> x_pos >> c >> y_pos;
+		cout << "You entered (" << x_pos << "," << y_pos << ")" << endl;
+		// Array offset -1
+		x_pos--; y_pos--;
+		if (!validMove(x_pos, y_pos)) return -1;
+		board[y_pos + (hex_size * (x_pos))] = (my_turn ? "B":"R");
+		my_turn = !my_turn;
+		return 0;
+	}
+
+	// validMove(x, y)
+	// If (x,y) represent valid co-ordinates, return true
+	// else return false
+	bool validMove(int x, int y) {
+		if ((x >= hex_size) || (y >= hex_size)) return false;
+		if ((x < 0) || (y < 0)) return false;
+		if (board[y_pos + (hex_size * (x_pos))] != ".") return false;
+
+		return true;
+	}
+
+	// drawBoard(void)
+	// Draws the hex board on screen. Call after updating the move.
+	void drawBoard() {
+		string dashes(" - ");
+		string edges("\\ / ");
+		string spaces(" ");
+
+		for (int i = 0; i < hex_size * 2 - 1; i++) {
+			for (int j = 0; j < hex_size; j++) {
+				if (i % 2) {
+					if (j < hex_size - 1)
+						cout << edges;
+					else
+						cout << "\\";
+				}
+				else {
+					if (j < hex_size - 1)
+						cout << board[j + (hex_size * (i / 2))] << dashes;
+					//cout << dots << dashes;
+					else
+						//cout << dots;
+						cout << board[j + (hex_size * (i / 2))];
+				}
+			}
+			cout << endl;
+			for (int k = 0; k <= i; k++)
+				cout << spaces;
+		}
+	}
+
+	int get_size() {
+		return hex_size;
+	}
+
 	~Hex() {
 
 	}
+private:
+	int hex_size;
+	vector<string> board;
+	bool my_turn;
+	unsigned int x_pos, y_pos;
+	char c;
 };
 int main()
 {
-	cout << "Hex board is " << hex_size << " x " << hex_size << endl;
-	bool edge = false;
-	string tmp;
-	char c;
-	int x_pos = 0, y_pos = 0;
-	string dots(".");
-	string dashes(" - ");
-	string edges("\\ / ");
-	string spaces(" ");
-	vector <string> board(hex_size * hex_size);
-	for (int n = 0; n < board.size(); n++) {
-		board[n] = ".";
-	}
-	int row = 0, col = 0;
-label:
-	for (int i = 0; i < hex_size*2-1; i++) {
-		col = i / 2;
-		for (int j = 0; j < hex_size; j++) {
-			row = j;
-			if (i % 2) {
-				if (j < hex_size - 1)
-					cout << edges;
-				else
-					cout << "\\";
-			} 
-			else {
-				if (j < hex_size - 1)
-					cout<< board[j + (hex_size * (i/2))] << dashes;
-					//cout << dots << dashes;
-				else
-					//cout << dots;
-					cout << board[j + (hex_size * (i/2))];
-			}		
+	//Create a 7x7 board to play Hex
+	Hex board(hex_size);
+	bool done = false;
+	bool my_turn = false;
+	cout << "Hex board is " << board.get_size() << " x " << board.get_size() << endl;
+	board.drawBoard();
+	string tmp = "";
+	while (!done) {
+		cout << " \nEnter co-ordinate X,Y. For example you can enter \"5,2\" without the quotes: (" << (my_turn ? "B":"R" ) << ")" << endl;
+		getline(cin, tmp);
+		if (board.updatePos(tmp) == 0) {
+			cin.clear();
+			fflush(stdin);
+			board.drawBoard();
+			my_turn = !my_turn; //R goes first (my_turn false)
 		}
-		cout << endl;
-		for (int k = 0; k <= i; k++)
-			cout << spaces;
+		else {
+			cout << "Not a valid move!";
+		}
 	}
-	cout << " \nEnter co-ordinate X,Y. For example you can enter \"5,2\" without the quotes: " << endl;
-	cin >> tmp;
-	stringstream pos(tmp);
-	pos >> x_pos >> c >> y_pos;
-	cout << "You entered (" << x_pos << ", " << y_pos << ")" << endl;
-	// Array offset -1
-	x_pos--; y_pos--; 
-	board[y_pos + (hex_size * (x_pos))] = "X";
-	goto label;
-
+	
 	cin.get();
 	cin.get();
     return 0;
